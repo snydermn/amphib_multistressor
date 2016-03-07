@@ -6,6 +6,13 @@ output: pdf_document
 ---
 This document combines the corticosterone data from the individual EIAs into one large dataset. That dataset is used to investigate the effect of the treatments on the corticosterone level of individual frogs. Corticosterone was measured in the water at the beginning of the 48 hour exposure and at the end of the exposure. A standard curve was created for each EIA plate individually as abundance units vs. log (concentration) values. 
 
+Libraries used:
+```{r}
+library(reshape2)
+library(ggplot2)
+library(plyr)
+```
+
 Import files used:
 ```{r, echo=FALSE}
 setwd("~/Dropbox/amphib_metabolomics/PIP/data/CORT/final")
@@ -483,11 +490,12 @@ boxplot(cort.diff~treatment.x, data=scort4, xlab="treatment.x", names=c("control
 ```
 
 ```{r}
+
 #cort begin time
 m4<-lm(V1.x~treatment.x+experiment, data=scort4)
 summary(m4)
 
-#cort end time
+#cort end time models
 m4<-lm(V1.y~treatment.x+experiment, data=scort4)
 summary(m4)
 m4<-lm(V1.y~treatment.x+plate.x+experiment, data=scort4)
@@ -498,12 +506,24 @@ m5<-lm(V1.y~experiment, data=scort4)
 summary(m5)
 m7<-lm(V1.y~Pesticide.x*predator.x+experiment, data=scort4)
 summary(m7)
+m8<-lm(V1.y~Pesticide.x*predator.x, data=scort4)
+summary(m8)
+#boxplot cort endtime
 boxplot(V1.y~Pesticide.x+predator.x, data=scort4, main="Cort final")
+
 #cort difference 
-m3<-lm(cort.diff~Pesticide.x+predator.x+experiment, data=scort4)
-summary(m3)
-m3<-lm(cort.diff~treatment.x+experiment, data=scort4)
-summary(m3)
+m9<-lm(cort.diff~Pesticide.x+predator.x+experiment, data=scort4)
+summary(m9)
+m10<-lm(cort.diff~treatment.x+experiment, data=scort4)
+summary(m10)
+m11<-lm(cort.diff~Pesticide.x+predator.x, data=scort4)
+summary(m11)
+m12<-lm(cort.diff~predator.x+experiment, data=scort4)
+summary(m12)
+
 boxplot(cort.diff~Pesticide.x+predator.x, data=scort4, main="Cort diff")
+
+#boxplot of begin and end cort by treatment
+ggplot(scort3, aes(x=treatment, y=V1, fill=time)) + geom_boxplot()
 ```
 
