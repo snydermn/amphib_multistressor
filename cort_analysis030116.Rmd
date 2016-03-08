@@ -520,10 +520,49 @@ m11<-lm(cort.diff~Pesticide.x+predator.x, data=scort4)
 summary(m11)
 m12<-lm(cort.diff~predator.x+experiment, data=scort4)
 summary(m12)
-
+plot(m12)
 boxplot(cort.diff~Pesticide.x+predator.x, data=scort4, main="Cort diff")
 
 #boxplot of begin and end cort by treatment
 ggplot(scort3, aes(x=treatment, y=V1, fill=time)) + geom_boxplot()
 ```
+The boxplots indicate some skew of the data. To help offset some of the skew I will run models with natural log of cort values
+```{r}
+#histograms of cort values
+#cort diff
+hist(scort4$cort.diff)
+hist(log(scort4$cort.diff+1000))
+hist(log10(scort4$cort.diff+1000))
+#cort end
+hist(scort4$V1.y)
+hist(log(scort4$V1.y))
+hist(log10(scort4$V1.y))
 
+#models of cort diff ln
+m9<-lm(log(cort.diff+1000)~Pesticide.x+predator.x+experiment, data=scort4)
+summary(m9) #sig pesticide and experiment
+boxplot(log(cort.diff+1000)~Pesticide.x+predator.x, data=scort4, main="Cort diff")
+m10<-lm(log(cort.diff+1000)~treatment.x+experiment, data=scort4)
+summary(m10)
+m11<-lm(log(cort.diff+1000)~Pesticide.x+predator.x, data=scort4)
+summary(m11)
+m12<-lm(log(cort.diff+1000)~predator.x+experiment, data=scort4)
+summary(m12)
+
+# model of end cort ln
+m4<-lm(log(V1.y)~treatment.x+experiment, data=scort4)
+summary(m4)
+m4<-lm(log(V1.y)~treatment.x+plate.x+experiment, data=scort4)
+summary(m4)
+m5<-lm(log(V1.y)~Pesticide.x+predator.x+experiment+plate.x, data=scort4)
+summary(m5)
+m5<-lm(log(V1.y)~experiment, data=scort4)
+summary(m5)
+m7<-lm(log(V1.y)~Pesticide.x*predator.x+experiment, data=scort4)
+summary(m7)
+m8<-lm(log(V1.y)~Pesticide.x*predator.x, data=scort4)
+summary(m8)
+m9<-lm(log(V1.y)~Pesticide.x*predator.x+plate.x, data=scort4)
+summary(m9)
+boxplot(log(V1.y)~Pesticide.x+predator.x, data=scort4, main="Cort final")
+```
