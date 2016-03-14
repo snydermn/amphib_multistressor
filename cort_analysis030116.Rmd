@@ -150,7 +150,7 @@ cort_all_sort$sample_name<-as.factor(as.character(cort_all_sort$sample_name))
 #cort_all_sort1<-rbind(cort_all_sort, add1)
 write.csv(cort_all_sort, "cort_out.csv")
 ```
-
+START HERE
 Anova for experimental day effects
 ```{r}
 cort_out2 <- read.csv("~/Dropbox/amphib_metabolomics/PIP/data/CORT/final/cort_out3.csv")
@@ -236,7 +236,7 @@ model.plate.end2<-lm(V1~treatment+plate, data=subset(cort3, time=="2"))
 summary(model.plate.end2)
 ```
 
-When comparing the experiment time period, the significant differences are in the comparison of cort levels to experimental time period is that the beginning base line cort level between experiment 3 and 4. For end time period intercept and experimental time 2 is significantly different. When comparing treatment levels to corticosterone levels, Treatment 2 and 4 is significantly different in end time period Cort levels. In difference cort levels or beginning cort levels there is no signficant treatment effects. Treatment 2 is carbaryl only. Treatment 4 is carbaryl and bullfrog predation stress.   
+When comparing the experiment time period, the significant differences are in the comparison of cort levels to experimental time period is that the beginning base line cort level between experiment 3 and 4. For end time period intercept and experimental time 2 is significantly different. When comparing treatment levels to corticosterone levels, Treatment 2 and 4 is significantly different in end time period Cort levels. In difference cort levels or beginning cort levels there is no signficant treatment effects. Treatment 2 is carbaryl only. Treatment 4 is carbaryl and bullfrog predation stress. When looking for effects of plate, plate4 is significantly different than the other plates. When we went back and examined the standard curve on plate 4 the lower abundance values which correspond to the higher cort levels are quite different than for the other plates. We compared slope and intercepts for the standard curve for all the plates and found that plate4 is the most different so we applied an average of the slope and intercept from all the other plates to the plate 4 data. We also ran the models without plate 4 data. 
 
 ANOVAS without plate 4 for cort beginning and end time periods:
 ```{r}
@@ -521,6 +521,7 @@ summary(m11)
 m12<-lm(cort.diff~predator.x+experiment, data=scort4)
 summary(m12)
 plot(m12)
+
 boxplot(cort.diff~Pesticide.x+predator.x, data=scort4, main="Cort diff")
 
 #boxplot of begin and end cort by treatment
