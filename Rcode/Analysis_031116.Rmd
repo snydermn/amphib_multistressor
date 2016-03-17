@@ -164,7 +164,7 @@ svmrfeFeatureRanking = function(x,y){
   return (featureRankedList)
 }
 ```
-RFE and SVM with RFE
+RFE and SVM with RFE for control vs. pesticide
 ```{r}
 #prepare data for RFE
 X<-liver1_2[,-1:-2]
@@ -178,7 +178,7 @@ svmModel
 summary(svmModel)
 print(svmModel)
 ```
-
+Bootstrapped accuracy for control vs. pesticide w/ rfe
 ```{r}
 #### do 250 bootstrapped leave one out cross validation for SVM with 1-1500 feature ranked bins ####
 no.features<-seq(1,1500,by=100)
@@ -449,7 +449,16 @@ View(acc4merge)
 plot(acc4merge$no.features, acc4merge$out.acc, ylab="% Accuracy", xlab="Number of bins")
 
 ```
-With RFE ranked bins highest accuracy classification is %65 with 10 bins when use 75 bins from control vs. pesticide on control vs. pesticide + bullfrog. 
+With RFE ranked bins highest accuracy classification is %80 with 10 bins when use 75 bins from control vs. pesticide on control vs. pesticide + bullfrog. 
+
+To export spreadsheet with retention time and bin rank for control vs. pesticide + bullfrog but with 75 bins ranked by control vs. pesticide. 
+```{r}
+library(R.utils)
+yuck_exp<-cbind(featureRankedList.yuck4, yuck3)
+setwd("~/git/PIP/GCMS_data_XCMS/output")
+write.csv(yuck_exp, "RFE_ctrlvspest_bull_75binrank.csv")
+```
+
 
 Now to see how well SVM -rfe will work with just control vs. pesticide + bullfrog.
 
