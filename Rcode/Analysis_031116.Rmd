@@ -194,7 +194,7 @@ out.acc
 acc4merge<-as.data.frame(cbind(no.features, out.acc))
 View(acc4merge)
 #plot of output
-plot(acc4merge$no.features, acc4merge$out.acc, ylab="% Accuracy", xlab="Number of bins")
+plot(acc4merge$no.features, acc4merge$out.acc, ylab="% Accuracy", xlab="Number of bins", main="control vs. pesticide")
 # between 0 and 200 bins the accuracy increases to >90% and then decreases after 200 bins
 
 #more fine scale to determine where the highest accuracy is per bin
@@ -265,6 +265,34 @@ m9
 [6,] 42.5 50.5 39.5 37.0 36.0 41.0
 ```
 
+RFE code for control vs. bullfrog
+```{r}
+#### other R implementation of RFE for SVM ####
+svmrfeFeatureRanking = function(x,y){
+  n = ncol(x)
+  survivingFeaturesIndexes = seq(1:n)
+  featureRankedList = vector(length=n)
+  rankedFeatureIndex = n
+  while(length(survivingFeaturesIndexes)>0){
+    #train the support vector machine
+    svmModel = svm(x[, survivingFeaturesIndexes], y, cost = 1e10, gamma=1.0e-5, cachesize=500,
+                   scale=F, type="C-classification", kernel="radial" )
+    #compute the weight vector
+    w = t(svmModel$coefs)%*%svmModel$SV
+    #compute ranking criteria
+    rankingCriteria = w * w
+    #rank the features
+    ranking = sort(rankingCriteria, index.return = TRUE)$ix
+    #update feature ranked list
+    featureRankedList[rankedFeatureIndex] = survivingFeaturesIndexes[ranking[1]]
+    rankedFeatureIndex = rankedFeatureIndex - 1
+    #eliminate the feature with smallest ranking criterion
+    (survivingFeaturesIndexes = survivingFeaturesIndexes[-ranking[1]])
+  }
+  return (featureRankedList)
+}
+```
+
 RFE and SVM with RFE for control vs. bullfrog only. The RFE function has already been created above. 
 ```{r}
 #prepare data for RFE
@@ -274,7 +302,7 @@ Y<-liver1_3$Class
 #RFE
 featureRankedList <-svmrfeFeatureRanking(X,Y)
 #SVM w/ RFE
-svmModel = svm(X[, featureRankedList[1:200]], Y, cost = 1e10, gamma=1.0e-10, kernel="radial", cross=3 )
+svmModel = svm(X[, featureRankedList[1:200]], Y, cost = 1e10, gamma=1.0e-5, kernel="radial", cross=3 )
 svmModel 
 summary(svmModel)
 print(svmModel)
@@ -283,7 +311,7 @@ print(svmModel)
 no.features<-seq(1,1500,by=100)
 out.acc<-NULL
 for (j in seq_along(no.features)){
-  for (i in 1:250){
+  for (i in 1:100){
     svmModel3 = svm(X[, featureRankedList[1:no.features[j]]], Y, cost = 1e10, kernel="radial", cross=3 )
     accuracy.vector[i]<-svmModel3$tot.accuracy
   }
@@ -293,12 +321,43 @@ out.acc
 acc4merge<-as.data.frame(cbind(no.features, out.acc))
 View(acc4merge)
 #plot of output
-plot(acc4merge$no.features, acc4merge$out.acc, ylab="% Accuracy", xlab="Number of bins")
+plot(acc4merge$no.features, acc4merge$out.acc, ylab="% Accuracy", xlab="Number of bins", main="control vs. bullfrog")
+#finer scale plot
+no.features<-seq(1,200,by=20)
+out.acc<-NULL
+for (j in seq_along(no.features)){
+  for (i in 1:100){
+    svmModel3 = svm(X[, featureRankedList[1:no.features[j]]], Y, cost = 1e10, kernel="radial", cross=3 )
+    accuracy.vector[i]<-svmModel3$tot.accuracy
+  }
+  out.acc[j]<-mean(accuracy.vector)  
+}
+out.acc
+acc4merge<-as.data.frame(cbind(no.features, out.acc))
+View(acc4merge)
+#plot of output
+plot(acc4merge$no.features, acc4merge$out.acc, ylab="% Accuracy", xlab="Number of bins", main="control vs. bullfrog")
 ```
+
+Combine the feature ranked list with the features for control vs. bullfrog
+```{r}
+library(R.utils)
+liver1_3t<-t(liver1_3)
+View(liver1_3t)
+#inserted 2 NAs in beginning 
+featureRankedList4join <- insert(featureRankedList, ats=1, values=rep(NA,2))
+featureRankedList4join2 <- insert(featureRankedList4join, ats=1587, values=(NA))
+View(featureRankedList4join2)
+dim(liver1_3t)
+liver1_3twRFE<-cbind(featureRankedList4join2, liver1_3t)
+View(liver1_3twRFE)
+setwd("~/git/PIP/GCMS_data_XCMS/output")
+write.csv(liver1_3twRFE, "RFE_ctrlvbullfrog.csv")
+```
+
 Create data with just the subset (n=75) of feature ranked bins used to classify pesticide vs. control with >90% accuracy
 ```{r}
 View(allliver2) #allliver2 has treatments, sample ID, and metabolites
-# join options featureRankedList or featureRankedList4join
 liver1_4<-allliver2[which(allliver2$'class$V1'=='1' | allliver2$'class$V1'=='4'), ]
 View(liver1_4)
 liver1_4$Class<-as.factor(liver1_4$`class$V1`)
@@ -571,3 +630,19 @@ plot(acc4merge$no.features, acc4merge$out.acc, ylab="% Accuracy", xlab="Number o
 
 ```
 When classifying, control vs. bullfrog+pesticide tadpoles, after 3 rfe bins the classification accuracy and gets to 96% at 9 bins then stays above 90 until 141 bins. 
+
+Combine the feature ranked list with the features for control vs. pesticide+ bullfrog
+```{r}
+library(R.utils)
+liver1_4t<-t(liver1_4)
+View(liver1_4t)
+#inserted 2 NAs in beginning 
+featureRankedList4join <- insert(featureRankedList, ats=1, values=rep(NA,2))
+featureRankedList4join2 <- insert(featureRankedList4join, ats=1587, values=(NA))
+View(featureRankedList4join2)
+dim(liver1_4t)
+liver1_4twRFE<-cbind(featureRankedList4join2, liver1_4t)
+View(liver1_4twRFE)
+setwd("~/git/PIP/GCMS_data_XCMS/output")
+write.csv(liver1_4twRFE, "RFE_ctrlvpest_and_bullfrog_allbins.csv")
+```
