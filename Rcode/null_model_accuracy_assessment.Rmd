@@ -1,0 +1,156 @@
+---
+title: "null model accuracy assessment"
+author: "MNSnyder"
+date: "8/28/2019"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Script to create a bootstrap null classification accuracy to compare with classification accuracy of actual treatments.
+
+1. Subset to only control data
+
+2. Combine all Control data 
+
+3. Randomly select a peak for each RT for all the control data 
+
+4. Do step 3. 5 times and call that control data
+
+5. Do step 3. again 5 times  and call that exposure data
+
+6. Run SVM-RFE on the 'null' control and 'null' exposure data
+
+7. Repeat 1000x
+
+8. Get a statistic (percentile/Z score?) to compare to your original results
+
+Import data processed and retention time aligned with XCMS. 
+Classes represent treatments.
+1 = no pesticide, no predator
+2 = pesticide, no predator
+3 = no pesticide, predator
+4 = pesticide, predator
+
+```{r import aligned data}
+# control vs. pesticide only
+class <- read.csv("D:/git_repo/PIP/GCMS_data_XCMS/WorkDir_liver1/Preprocessing_Data_a/class.csv")
+ProcessedTable <- read.csv("D:/git_repo/PIP/GCMS_data_XCMS/WorkDir_liver1/Preprocessing_Data_a/ProcessedTable.csv")
+allliver<-cbind(class$V1, ProcessedTable)
+allliver2<-allliver[order(class$V1),]
+# drop classes 2 and 3
+control_peaks<-allliver2[-11:-30,]
+
+```
+
+1. Subset to only control data
+
+2. Randomly select a peak for each RT for all the control data 
+
+3. Do step 2. 5 times and call that control data
+
+4. Do step 2. again 5 times  and call that exposure data
+
+5. Run SVM-RFE on the 'null' control and 'null' exposure data
+
+6. Repeat steps 3-5 1000x
+
+7. Get a statistic (percentile/Z score?) to compare to your original results
+
+
+```{r randomly select a peak for each RT for all the control data}
+# columns represent peaks, rows are individual liver samples
+# create function to randomly select peak across rows for each column
+# control_peaks2<-control_peaks[,-1:-2]
+# number_of_peaks2<-dim(control_peaks2)[2]
+# number_of_samples2<-dim(control_peaks2)[1]
+# new_sample<-NULL
+# for (j in 1:number_of_peaks){
+#  row_x <- sample(1:number_of_samples, 1)
+#  selected_peak_value<-control_peaks2[row_x,j]
+#  new_sample[j]<-selected_peak_value
+#  }
+
+# function to create a hypothetical liver sample by randomly selecting from a number of real samples in a dataframe
+peak_picking<-function(peaks, number_of_peaks, number_of_samples){
+  for (j in 1:number_of_peaks){
+ row_x <- sample(1:number_of_samples, 1)
+ selected_peak_value<-peaks[row_x,j]
+ new_sample[j]<-selected_peak_value
+  }
+  return(new_sample)
+}
+
+# run function 10x
+control_peaks2<-control_peaks[,-1:-2]
+number_of_peaks2<-dim(control_peaks2)[2]
+number_of_samples2<-dim(control_peaks2)[1]
+new_sample<-NULL
+
+cntrl1<-peak_picking(control_peaks2, number_of_peaks2, number_of_samples2)
+cntrl2<-peak_picking(control_peaks2, number_of_peaks2, number_of_samples2)
+cntrl3<-peak_picking(control_peaks2, number_of_peaks2, number_of_samples2)
+cntrl4<-peak_picking(control_peaks2, number_of_peaks2, number_of_samples2)
+cntrl5<-peak_picking(control_peaks2, number_of_peaks2, number_of_samples2)
+exposure1<-peak_picking(control_peaks2, number_of_peaks2, number_of_samples2)
+exposure2<-peak_picking(control_peaks2, number_of_peaks2, number_of_samples2)
+exposure3<-peak_picking(control_peaks2, number_of_peaks2, number_of_samples2)
+exposure4<-peak_picking(control_peaks2, number_of_peaks2, number_of_samples2)
+exposure5<-peak_picking(control_peaks2, number_of_peaks2, number_of_samples2)
+
+```
+
+SET UP FEATURE RANKING FUNCTION
+```{r}
+#### create function for other R implementation of RFE for SVM ####
+svmrfeFeatureRanking = function(x,y){
+  n = ncol(x)
+  survivingFeaturesIndexes = seq(1:n)
+  featureRankedList = vector(length=n)
+  rankedFeatureIndex = n
+  while(length(survivingFeaturesIndexes)>0){
+    #train the support vector machine
+    svmModel = svm(x[, survivingFeaturesIndexes], y, cost = 6.4e9, gamma=1.0e-10, cachesize=500,
+                   scale=F, type="C-classification", kernel="radial" )
+    #compute the weight vector
+    w = t(svmModel$coefs)%*%svmModel$SV
+    #compute ranking criteria
+    rankingCriteria = w * w
+    #rank the features
+    ranking = sort(rankingCriteria, index.return = TRUE)$ix
+    #update feature ranked list
+    featureRankedList[rankedFeatureIndex] = survivingFeaturesIndexes[ranking[1]]
+    rankedFeatureIndex = rankedFeatureIndex - 1
+    #eliminate the feature with smallest ranking criterion
+    (survivingFeaturesIndexes = survivingFeaturesIndexes[-ranking[1]])
+  }
+  return (featureRankedList)
+}
+```
+
+
+5. Run SVM-RFE on the 'null' control and 'null' exposure data
+
+```{r}
+#prepare data for RFE
+X<-liver1_2[,-1:-2]
+X<-X[,-1585]
+Y<-liver1_2$Class
+#RFE
+featureRankedList <-svmrfeFeatureRanking(X,Y)
+#SVM w/ RFE
+svmModel = svm(X[, featureRankedList[1:100]], Y, cost = 1e10, gamma=1.0e-10, kernel="radial", cross=3 )
+svmModel 
+summary(svmModel)
+print(svmModel)
+```
+
+
+
+
+
+
