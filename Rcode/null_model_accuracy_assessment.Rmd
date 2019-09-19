@@ -86,9 +86,12 @@ peak_picking<-function(peaks, number_of_peaks, number_of_samples){
 }
 
 # run function 10x
+# drop label and sample name columns
 control_peaks2<-control_peaks[,-1:-2]
-number_of_peaks2<-dim(control_peaks2)[2]
-number_of_samples2<-dim(control_peaks2)[1]
+# get number of peaks
+number_of_peaks2<-dim(control_peaks2)[2] #1584
+# get number of samples
+number_of_samples2<-dim(control_peaks2)[1] #10
 new_sample<-NULL
 
 cntrl1<-peak_picking(control_peaks2, number_of_peaks2, number_of_samples2)
@@ -102,6 +105,17 @@ exposure3<-peak_picking(control_peaks2, number_of_peaks2, number_of_samples2)
 exposure4<-peak_picking(control_peaks2, number_of_peaks2, number_of_samples2)
 exposure5<-peak_picking(control_peaks2, number_of_peaks2, number_of_samples2)
 
+class<-c(1,1,1,1,1,2,2,2,2,2)
+# combine new control and exposure data into a dataframe for SVM-RFE
+null_sample<-rbind.data.frame(cntrl1, cntrl2, cntrl3, cntrl4, cntrl5, exposure1, exposure2, exposure3, exposure4, exposure5)
+null_sample<-cbind(null_sample, class)
+# convert to dataframe
+#null_sample2<-as.data.frame(null_sample)
+# add key to treatment level to dataframe
+#null_sample$class<-1
+#null_sample$class[6:10]<-2
+# change to factor
+null_sample$class<-as.factor(null_sample$class)
 ```
 
 SET UP FEATURE RANKING FUNCTION
@@ -132,10 +146,19 @@ svmrfeFeatureRanking = function(x,y){
 }
 ```
 
+```{r old code test}
+allliver<-cbind(class$V1, ProcessedTable)
+View(allliver)
+allliver2<-allliver[order(class$V1),]
+View(allliver2)
+liver1_2<-allliver2[-21:-40,]
+View(liver1_2)
+liver1_2$Class<-as.factor(liver1_2$`class$V1`)
+
+```
+
 
 5. Run SVM-RFE on the 'null' control and 'null' exposure data
-
-```{r}
 #prepare data for RFE
 X<-liver1_2[,-1:-2]
 X<-X[,-1585]
@@ -147,10 +170,22 @@ svmModel = svm(X[, featureRankedList[1:100]], Y, cost = 1e10, gamma=1.0e-10, ker
 svmModel 
 summary(svmModel)
 print(svmModel)
+```{r}
+#prepare data for RFE
+X<-null_sample[,-1585]  
+Y<-null_sample$class
+#RFE
+featureRankedList <-svmrfeFeatureRanking(X,Y)
+#SVM w/ RFE
+svmModel = svm(X[, featureRankedList[1:100]], Y, cost = 1e10, gamma=1.0e-10, kernel="radial", cross=3 )
+svmModel 
+summary(svmModel)
+print(svmModel)
 ```
 
+cross fold robustness
 
-
+null distribution of accuracy values compared to treatment accuracies (robustness score) 
 
 
 
