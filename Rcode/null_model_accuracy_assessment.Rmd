@@ -86,7 +86,7 @@ peak_picking<-function(peaks, number_of_peaks, number_of_samples){
 }
 ```
 
-Format data pre-processed (retention time aligned and scaled) data for format to create null control and exposure from control data.
+Format data pre-processed (retention time aligned and scaled) data to create null control and exposure from control data. 
 ```{r create null data}
 # run function 10x
 # drop label and sample name columns
@@ -184,6 +184,8 @@ plot(acc4merge$no.features, acc4merge$out.acc, ylab="% Accuracy", xlab="Number o
  
 With this set of samples, it looks like it only takes the top 2 ranked peak to reach accuracy >90%.
 
+######################################################################
+BOOTSTRAPPING
 Create function to create 100 different null data sets in an array-
 * rows = samples 
 * columns = peaks 
