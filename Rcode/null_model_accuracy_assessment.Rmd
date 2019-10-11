@@ -46,8 +46,8 @@ Classes represent treatments.
 # folder containing look up tables
 
 # Tom's computer -> NOT SET UP
-if(Sys.info()[4]=="FILL IN HERE"){
-  datadir<-path.expand("FILL IN HERE") # path to git repo
+if(Sys.info()[4]=="LZ2626UTPURUCKE"){
+  datadir<-path.expand("c:/git/PIP/") # path to git repo
 }
 
 # Marcia's epa computer -> WORKS

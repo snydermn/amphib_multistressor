@@ -16,7 +16,8 @@ library(muma)
 ```
 Data from the GC-MS (autospec) was retention time aligned in xcms online and exported. The exported file had 2665 identified features. Some retention times had more than one m/z value so I sorted the data by median retention time and deleted duplicates based on abunance at a retention time. Here I import that data. 
 ```{r}
-setwd("D:/git_repo/PIP/GCMS_data_XCMS")
+#setwd("D:/git_repo/PIP/GCMS_data_XCMS")
+setwd("c:/git/PIP/GCMS_data_XCMS")
 XCMS.diffreport4R <- read.csv("XCMS.diffreport4R.csv")
 View(XCMS.diffreport4R)
 liver1<-XCMS.diffreport4R
@@ -48,13 +49,13 @@ View(liver1_t)
 data <- data[,c(1:6,18,7:17)] 
 liver2_t<-liver1_t[,c(1587, 2:1586)]
 View(liver2_t)
-setwd("~/git/PIP/GCMS_data_XCMS")
+setwd("c:/git/PIP/GCMS_data_XCMS")
 write.csv(liver2_t, file="liver2_t_out.csv")
 ```
 
 MUMA for outlier analysis w 4 treatment groups
 ```{r}
-#setwd("~/git/PIP/GCMS_data_XCMS")
+#setwd("c:/git/PIP/GCMS_data_XCMS")
 # creates directory
 work.dir(dir.name="WorkDir_liver1")
 # delete first row in excel of .csv 
@@ -85,7 +86,7 @@ The PLS-DA distinguishes the pesticide only treatment from the other treatments 
 
 ```{r}
 #set up directory structure for MUMA pca and plsda
-setwd("~/git/PIP/GCMS_data_XCMS")
+setwd("c:/git/PIP/GCMS_data_XCMS")
 work.dir(dir.name="WorkDir_liver2")
 #pca
 explore.data(file="liver3_t_out.csv", scaling="a", scal=TRUE, normalize=TRUE, imputation=FALSE, imput="ImputType")
@@ -364,7 +365,7 @@ View(featureRankedList4join2)
 dim(liver1_3t)
 liver1_3twRFE<-cbind(featureRankedList4join2, liver1_3t)
 View(liver1_3twRFE)
-setwd("~/git/PIP/GCMS_data_XCMS/output")
+setwd("c:/git/PIP/GCMS_data_XCMS/output")
 write.csv(liver1_3twRFE, "RFE_ctrlvbullfrog.csv")
 ```
 
@@ -527,7 +528,7 @@ To export spreadsheet with retention time and bin rank for control vs. pesticide
 ```{r}
 library(R.utils)
 yuck_exp<-cbind(featureRankedList.yuck4, yuck3)
-setwd("~/git/PIP/GCMS_data_XCMS/output")
+setwd("c:/git/PIP/GCMS_data_XCMS/output")
 write.csv(yuck_exp, "RFE_ctrlvspest_bull_75binrank.csv")
 ```
 
@@ -656,6 +657,6 @@ View(featureRankedList4join2)
 dim(liver1_4t)
 liver1_4twRFE<-cbind(featureRankedList4join2, liver1_4t)
 View(liver1_4twRFE)
-setwd("~/git/PIP/GCMS_data_XCMS/output")
+setwd("c:/git/PIP/GCMS_data_XCMS/output")
 write.csv(liver1_4twRFE, "RFE_ctrlvpest_and_bullfrog_allbins.csv")
 ```
