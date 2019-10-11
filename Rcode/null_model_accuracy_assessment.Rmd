@@ -45,9 +45,14 @@ Classes represent treatments.
 # specify path to model results folder and
 # folder containing look up tables
 
-# Tom's computer -> NOT SET UP
+# Tom's laptop
 if(Sys.info()[4]=="LZ2626UTPURUCKE"){
   datadir<-path.expand("c:/git/PIP/") # path to git repo
+}
+
+# Tom's linux
+if(Sys.info()[4]=="d2626ut7920d.rtpnc.epa.gov"){
+  datadir<-path.expand("~/git/PIP/") # path to git repo
 }
 
 # Marcia's epa computer -> WORKS
