@@ -1,0 +1,245 @@
+RT,feature_rank,direction,metabolite id
+,,,
+,,,
+X10.17316668,86,down,alanine
+X10.17316694,84,down,alanine
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+X12.85133313,42,up,valine
+,,,
+,,,
+,,,
+X14.34158344,44,up,phosphate
+X14.34641686,97,up,phosphate
+X14.3480001,75,down,phosphate
+,,,
+,,,
+,,,
+,,,
+X14.8730837,80,up,proline
+,,,
+X15.0651664,64,down,glycine
+X15.07308317,82,down,glycine
+X16.29466738,54,up,serine
+X16.30416622,13,down,serine
+X16.30483329,76,down,serine
+X16.30491662,40,down,serine
+X16.30550035,51,down,serine
+,,,
+X16.86816717,43,down,threonine
+X16.87091681,78,down,threonine
+X17.80200005,19,down,alanine
+X18.1706668,74,down,
+,,,
+,,,
+X19.15374969,6,down,butanedioic acid
+X19.1540001,63,down,butanedioic acid
+X19.86166734,8,up,aspartic acid
+X19.86175031,65,down,aspartic acid
+X19.86183401,94,up,aspartic acid
+X19.87783403,5,up,aspartic acid
+X19.87850067,27,down,pyroglutamic acid
+X19.88650011,24,up,aspartic acid
+,,,
+X20.56808271,14,down,cysteine
+X20.65158352,2,up,trihydroxybutyric acid
+X20.66766647,71,down,trihydroxybutyric acid
+X21.10150033,56,down,proline/valine
+X21.47466596,83,down,proline/valine
+X21.89816723,69,down,glutamine
+X21.93850001,93,down,glutamine
+X21.93866611,31,up,glutamine
+X21.95383243,52,up,glutamine
+X21.95449924,29,up,glutamine
+,,,
+X22.03499947,68,down,phenylalanine
+X22.03500023,26,down,phenylalanine
+X22.90500051,98,down,asparagine
+X22.91850014,33,down,asparagine
+X22.93800016,28,down,asparagine
+,,,
+X23.04933391,32,up,ribose
+X23.06508332,11,up,ribose
+X23.09716722,41,up,ribose
+X23.09850056,25,down,ribose
+X23.64808332,12,down,?
+X23.96649931,21,up,phosphoric acid
+X24.21650016,1,down,lysine
+X24.49758359,79,down,urea (NOT UREA)
+X24.75633327,61,up,phosphate derivative
+X24.76016701,60,down,phosphate derivative
+X24.76599957,58,down,phosphate derivative
+X24.76891643,72,up,phosphate derivative
+X24.77099996,38,up,phosphate derivative
+X24.77408309,70,up,phosphate derivative
+X24.78549997,59,up,phosphate derivative
+,,,
+X25.55983354,49,down,hypoxanthine
+X25.56049943,15,down,hypoxanthine
+,,,
+X25.75133398,62,up,ornithine
+X25.75141713,100,up,ornithine
+X25.75274949,23,down,ornithine
+X25.75299947,87,down,ornithine
+X25.75299989,22,down,ornithine
+X26.28416636,77,down,ornithine
+X26.39700011,18,down,lysine
+X26.39766677,16,down,lysine
+X26.39933342,50,down,lysine
+,,,
+,,,
+,,,
+,,,
+,,,
+X27.29400037,91,down,glucose
+X27.2959998,34,down,glucose
+X27.29683371,92,up,glucose
+X27.29924997,20,down,glucose
+,,,
+,,,
+X27.3085839,81,down,glucose
+X27.31141725,17,up,glucose
+,,,
+,,,
+,,,
+X27.32091704,73,down,glucose
+X27.33458314,48,down,glucose
+,,,
+X27.50349969,3,down,histidine
+,,,
+,,,
+X27.6143334,35,up,galactose
+X27.69250069,7,up,galactose
+,,,
+X27.7163327,90,down,galactose
+X27.71649954,66,up,galactose
+,,,
+X27.9710002,37,up,tyrosine
+X28.54349928,53,up,gluconic acid
+,,,
+,,,
+X29.21349909,47,down,purine derivative
+X29.30641635,55,down,myo inositol
+,,,
+X29.38050027,67,down,myo inositol
+X29.7124996,96,down,no peak ?
+,,,
+X29.77266649,45,down,ribose 6 phosphate
+,,,
+,,,
+X30.41866574,4,up,myoinositol
+X30.41949906,89,up,myoinositol
+X30.42049905,36,up,myoinositol
+,,,
+,,,
+,,,
+X32.85033242,30,down,myoinositol
+X32.85725041,46,down,myoinositol
+,,,
+,,,
+,,,
+,,,
+,,,
+X32.95383416,85,down,ribose 6 phosphate
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+X36.44866709,95,down,sugarz
+X36.45650099,57,down,sugarz
+,,,
+X37.26149952,10,down,sugarz
+,,,
+,,,
+,,,
+X38.5096664,39,down,?
+,,,
+,,,
+,,,
+X39.69049972,9,up,sugarz
+X39.69150164,88,up,sugarz
+X39.69258438,99,up,sugarz
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
