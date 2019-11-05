@@ -220,23 +220,128 @@ write.csv(rfeid_frog_sub, paste0(datadir, "output/rfeid_frog_sub.csv"))
 write.csv(rfeid_combined_sub, paste0(datadir, "output/rfeid_combined_sub.csv"))
 
 
-#############  NOT DONE  ##################################################3
-#### subset based on sum of values per peak ####
-liver_od<-dplyr::select(liver_o, -X, -V1)
+##########################################################################
+######### get sum of differences #############################
 
-liver_all_sums<-colSums(abs(liver_od))
-hist(liver_all_sums)
-# > 30?
-# plot sum difference histograms
+## control minus treatment 2
+
+array1 <- array(data=NA, dim=c(10,1584,10))
+
+for (i in 1:nrow(liver_t1)){
+  for (j in 1:nrow(liver_t2)){
+  temp<-liver_t1[i,] - liver_t2[j,]
+  a<- abs(temp)
+  array1[i,,j]<-as.matrix(a)
+}}
+
+#z <- array(1:20, dim = c(3,4,5))
+#dim(z)
+#apply(z, MARGIN = c(3), sum)
+
+# add up 1st and 3rd dimensions
+sum_out1<-apply(array1, MARGIN=c(2), sum)
+
+## control minus treatment 3
+array2 <- array(data=NA, dim=c(10,1584,10))
+
+for (i in 1:nrow(liver_t1)){
+  for (j in 1:nrow(liver_t3)){
+    temp<-liver_t1[i,] - liver_t3[j,]
+    a<- abs(temp)
+    array2[i,,j]<-as.matrix(a)
+  }}
+# add up 1st and 3rd dimensions
+sum_out2<-apply(array2, MARGIN=c(2), sum)
+
+## control minus treatment 4
+array3 <- array(data=NA, dim=c(10,1584,10))
+
+for (i in 1:nrow(liver_t1)){
+  for (j in 1:nrow(liver_t4)){
+    temp<-liver_t1[i,] - liver_t4[j,]
+    a<- abs(temp)
+    array3[i,,j]<-as.matrix(a)
+  }}
+# add up 1st and 3rd dimensions
+sum_out3<-apply(array3, MARGIN=c(2), sum)
+
+# combine treatment comparison sums
+sum_out_all<-cbind.data.frame(sum_out1, sum_out2, sum_out3)
+
+# plot histograms of total sums for each trtmt comparison
 par(mfrow=c(3,1))
 par(mar = c(4, 4, 1, 4))
-hist(abs(colSums(diff1)), xlab="Sum Difference (Pesticide - Control)", main="", col="red")
-hist(colSums(diff2), xlab="Sum Difference (Bullfrog - Control)", main="", col="blue")
-hist(colSums(diff3), xlab="Sum Difference (Pesticide & Bullfrog - Control)", main="", col="purple")
+hist(sum_out_all$sum_out1, xlab="Sum Difference (Control - Pesticide)", main="",col="red", xlim=c(0,150))
+hist(sum_out_all$sum_out2, xlab="Sum Difference (Control - Bullfrog)", main="",col="blue", xlim=c(0,150))
+hist(sum_out_all$sum_out3, xlab="Sum Difference (Control - Pesticide & Bullfrog)", main="", col="purple", xlim=c(0,150))
+
+##########################################################################
+#### subset based on threshold for each trtmt control comparison ####
+
+## control vs pest
+# create column for peak no
+peak_no<-seq(1,1584, 1)
+sumout1_no<-cbind.data.frame(sum_out1, peak_no)
+# drop peaks
+threshold<-113
+sumout1_f<-filter(sumout1_no, sum_out1 > threshold)
+# check to see ~20% dropped
+dim(sumout1_f)[1] / dim(sumout1_no)[1]
+
+## control vs frog
+# create column for peak no
+peak_no<-seq(1,1584, 1)
+sumout2_no<-cbind.data.frame(sum_out2, peak_no)
+# drop peaks
+threshold<-82
+sumout2_f<-filter(sumout2_no, sum_out2 > threshold)
+# check to see ~20% dropped
+dim(sumout2_f)[1] / dim(sumout2_no)[1]
+
+## control vs pest plus frog
+# create column for peak no
+peak_no<-seq(1,1584, 1)
+sumout3_no<-cbind.data.frame(sum_out3, peak_no)
+# drop peaks
+threshold<-76
+sumout3_f<-filter(sumout3_no, sum_out3 > threshold)
+# check to see ~20% dropped
+dim(sumout3_f)[1] / dim(sumout3_no)[1]
+
+#################################################
+#### merge sum filtered peak list with top 100 ranked peaks from RFE- SVM ####
+
+# pest #
+pest.m2<-merge(sumout1_f, rfe_pest2, by.x="peak_no", by.y="peak_no")
+pest.f2<-filter(pest.m2, featureRankedList4join2 < 100)
+dim(pest.f2) # 73 of 100 ranked peaks remaining
+# frog #
+frog.m2<-merge(sumout1_f, rfe_frog2, by.x="peak_no", by.y="peak_no")
+frog.f2<-filter(frog.m2, featureRankedList4join2 < 100)
+dim(frog.f2) # 74 of 100 ranked peaks remaining
+# combined #
+combined.m2<-merge(sumout1_f, rfe_combined2, by.x="peak_no", by.y="peak_no")
+combined.f2<-filter(combined.m2, featureRankedList4join2 < 100)
+dim(combined.f2) # 75 of 100 ranked peaks remaining
+
+#### merge with identified peak list from Matthew ####
+# pest #
+rfeid_pest_sub2<-merge(rfeid_pest, pest.f2,by.x="RT",by.y="X")
+View(rfeid_pest_sub2)
+# frog # 
+rfeid_frog_sub2<-merge(rfeid_frog, frog.f2,by.x="RT",by.y="X")
+View(rfeid_frog_sub2)
+# combined #
+rfeid_combined_sub2<-merge(rfeid_combined, combined.f2,by.x="RT",by.y="X")
+View(rfeid_combined_sub2)
+
+# write out combined CSV
+write.csv(rfeid_pest_sub2, paste0(datadir, "output/rfeid_pest_sub2.csv"))
+write.csv(rfeid_frog_sub2, paste0(datadir, "output/rfeid_frog_sub2.csv"))
+write.csv(rfeid_combined_sub2, paste0(datadir, "output/rfeid_combined_sub2.csv"))
 
 
-1. 30 treated frog and substract mean of control from them as one approach
-2. sum of max absolute value differences of all 3 trtms per peak and drop some proportion below some threshold
-3. keep going as we 
-4. run both approaches and see if any of the big change flagged peaks are ones that ended up being 
+#############  NOT DONE  ##################################################3
+
+
 
