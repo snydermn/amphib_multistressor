@@ -1,5 +1,6 @@
 ############################################################################################
-# script used to subset peaks based on magnitude of difference betweeen controls and treatments
+# script used to subset peaks based on magnitude of difference betweeen 
+# controls and treatments
 # MNSnyder
 # Oct. 22, 2019
 ##############################################################################################
