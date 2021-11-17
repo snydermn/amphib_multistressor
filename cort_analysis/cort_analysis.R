@@ -134,7 +134,7 @@ plate4c$experiment<-as.factor(as.character(plate4c$experiment))
 plate5c$experiment<-as.factor(as.character(plate5c$experiment))
 #combine all plates into 1 df
 cort_all<-rbind(plate1c, plate2c, plate3c, plate4c, plate5c)
-View(cort_all)
+#View(cort_all)
 # sort by sample number
 cort_all_sort<-cort_all[order(cort_all$sample_no),]
 #sum samples with multiple cort cells
@@ -151,7 +151,7 @@ write.csv(cort_all_sort, "cort_out.csv")
 # Anova for experimental day effects
 #reading court_out3.csv--I assume some data corrections here
 cort_out2 <- read.csv("c://git/amphib_multistressor/cort_analysis/cort_out3.csv")
-View(cort_out2)
+#View(cort_out2)
 cort1<-cort_out2
 cort1$experiment<-as.factor(as.character(cort1$experiment))
 summary(cort1)
@@ -192,7 +192,7 @@ boxplot(cort.diff~experiment, data=cort2, main="Cort difference")
 #adds metadata
 sample_list <- read.csv("c://git/amphib_multistressor/cort_analysis/sample_list.csv")
 cort3<-merge(cort1, sample_list, by=c("sample_no", "experiment"))
-View(cort3)
+#View(cort3)
 cort3$treatment<-as.factor(as.character(cort3$treatment))
 cort3$time<-as.factor(as.character(cort3$time))
 #anovas for effect of treatment on cort level at beginning and end
@@ -212,7 +212,7 @@ cort3.end<-cort3[cort3$time=="2",]
 cort4<-merge(cort3.base, cort3.end, by=c("sample_no", "experiment"))
 #cort4<-merge(cort3, sample_list, by=c("sample_no", "experiment"))
 cort4$cort.diff<-cort4$V1.y-cort4$V1.x
-View(cort4)
+#View(cort4)
 
 #anova for treatment effect on cort difference
 m3<-lm(cort.diff~treatment.x, data=cort4)
@@ -454,7 +454,7 @@ scort1.end<-scort1[scort1$time=="2",]
 #merge based on experiment number and sample name
 scort2<-merge(scort1.base, scort1.end, by=c("sample_no", "experiment"))
 summary(scort2)
-View(scort2)
+#View(scort2)
 dim(scort2)
 #subtract final measurement from initial cort measurement
 scort2$cort.diff<-scort2$V1.y-scort2$V1.x
@@ -487,11 +487,14 @@ scort3.end<-scort3[scort3$time=="2",]
 #View(scort3.end)
 scort4<-merge(scort3.base, scort3.end, by=c("sample_no", "experiment"))
 #cort4<-merge(cort3, sample_list, by=c("sample_no", "experiment"))
-scort4$cort.diff<-scort4$V1.y-scort4$V1.x
+
+# transform difference cocentrations to hourly rates
+# by dividing before concentration by 24 and after concentration by 48
+scort4$cort.diff<-(scort4$V1.y/48)-(scort4$V1.x/24)
 
 
 # this is (not) the anova for the manuscript
-View(scort4)
+#View(scort4)
 #anova for treatment effect on cort difference
 m3<-lm(cort.diff~treatment.x, data=scort4)
 summary(m3)
@@ -577,6 +580,13 @@ m9<-lm(log(V1.y)~Pesticide.x*predator.x+plate.x, data=scort4)
 summary(m9)
 boxplot(log(V1.y)~Pesticide.x+predator.x, data=scort4, main="Cort final")
 
+######################################################
+#### FINAL FIGURE AND ANOVAS
+View(scort4)
+dim(scort3) # long format
+summary(scort3) 
+dim(scort4) # tall format
+summary(scort4)
 
 #final figure
 #boxplot of begin and end cort by treatment
@@ -590,7 +600,7 @@ bp_contrast
 
 bp_diff <- ggplot(scort4, aes(x=treatment.x, y=cort.diff)) + 
   geom_boxplot(fill='plum4') +
-  labs(title="",x="Treatment", y = "Cort Difference (pg/mL)") +
+  labs(title="",x="Treatment", y = "Cort Difference (pg/mL/hr)") +
   scale_x_discrete(labels=c("Control","Carbaryl","Predator","Carbaryl+Predator")) +
   theme_classic()
 bp_diff
@@ -646,46 +656,50 @@ aictab(model.set, modnames = model.names)
 #Model selection based on AICc:
 #  
 #                              K   AICc Delta_AICc AICcWt Cum.Wt      LL
-#one_way_pesticide              3 965.61       0.00   0.56   0.56 -479.60
-#two_way_cort                   4 967.59       1.98   0.21   0.77 -479.44
-#two_way_cort_block             7 968.77       3.16   0.12   0.88 -476.35
-#two_way_cort_interaction       5 969.51       3.90   0.08   0.96 -479.22
-#two_way_cort_interaction_block 8 971.01       5.40   0.04   1.00 -476.15
-#one_way_predator               3 985.92      20.31   0.00   1.00 -489.75
-#one_way_plate                  5 987.61      22.00   0.00   1.00 -488.27
+#one_way_pesticide              3 513.22       0.00   0.42   0.42 -253.41
+#two_way_cort                   4 513.88       0.66   0.30   0.73 -252.59
+#two_way_cort_block             7 515.41       2.19   0.14   0.87 -249.67
+#two_way_cort_interaction       5 516.21       2.99   0.09   0.96 -252.57
+#two_way_cort_interaction_block 8 518.04       4.82   0.04   1.00 -249.66
+#one_way_predator               3 527.57      14.34   0.00   1.00 -260.58
+#one_way_plate                  5 531.94      18.72   0.00   1.00 -260.43
 
 summary(one_way_pesticide)
-#Df   Sum Sq Mean Sq F value   Pr(>F)    
-#Pesticide.y  1  7699147 7699147   24.31 6.82e-06 ***
-#  Residuals   60 19004102  316735  
+#Df Sum Sq Mean Sq F value  Pr(>F)    
+#Pesticide.y  1   3944    3944   18.37 6.7e-05 ***
+#  Residuals   60  12882     215                    
+#---
+#  Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
 
 TukeyHSD(one_way_pesticide)
 #Tukey multiple comparisons of means
 #95% family-wise confidence level
-
+#
 #Fit: aov(formula = cort.diff ~ Pesticide.y, data = scort4)
-
+#
 #$Pesticide.y
-#diff       lwr       upr   p adj
-#control-carbaryl -706.2544 -992.7927 -419.7162 6.8e-06
+#diff      lwr       upr   p adj
+#control-carbaryl -15.98387 -23.4442 -8.523542 6.7e-05
 
 summary(two_way_cort)
-#Df   Sum Sq Mean Sq F value   Pr(>F)    
-#predator.x   1   331955  331955   1.036    0.313    
-#Pesticide.y  1  7462381 7462381  23.284 1.02e-05 ***
-#  Residuals   59 18908914  320490 
+#Df Sum Sq Mean Sq F value   Pr(>F)    
+#predator.x   1    590     590   2.775 0.101037    
+#Pesticide.y  1   3688    3688  17.340 0.000103 ***
+#  Residuals   59  12548     213                     
+#---
+#  Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 TukeyHSD(two_way_cort)
 #Tukey multiple comparisons of means
 #95% family-wise confidence level
-
+#
 #Fit: aov(formula = cort.diff ~ predator.x + Pesticide.y, data = scort4)
-
+#
 #$predator.x
-#diff      lwr      upr     p adj
-#yes-no 146.3435 -141.388 434.0751 0.3129622
-
+#diff       lwr      upr     p adj
+#yes-no 6.17078 -1.241291 13.58285 0.1010365
+#
 #$Pesticide.y
-#diff       lwr       upr    p adj
-#control-carbaryl -692.033 -980.3652 -403.7007 1.11e-05
+#diff       lwr       upr     p adj
+#control-carbaryl -15.3842 -22.81175 -7.956658 0.0001103
 
