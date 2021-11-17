@@ -10,6 +10,7 @@ library(ggplot2)
 library(plyr)
 library(dplyr)
 library(ggpubr)
+library(AICcmodavg)
 
 #Import files used:
 
@@ -148,8 +149,9 @@ write.csv(cort_all_sort, "cort_out.csv")
 
 
 # Anova for experimental day effects
+#reading court_out3.csv--I assume some data corrections here
 cort_out2 <- read.csv("c://git/amphib_multistressor/cort_analysis/cort_out3.csv")
-#View(cort_out2)
+View(cort_out2)
 cort1<-cort_out2
 cort1$experiment<-as.factor(as.character(cort1$experiment))
 summary(cort1)
@@ -187,9 +189,10 @@ boxplot(cort.diff~experiment, data=cort2, main="Cort difference")
 
 #Anova and boxplots for treatment effects:
 
+#adds metadata
 sample_list <- read.csv("c://git/amphib_multistressor/cort_analysis/sample_list.csv")
 cort3<-merge(cort1, sample_list, by=c("sample_no", "experiment"))
-#View(cort3)
+View(cort3)
 cort3$treatment<-as.factor(as.character(cort3$treatment))
 cort3$time<-as.factor(as.character(cort3$time))
 #anovas for effect of treatment on cort level at beginning and end
@@ -260,6 +263,7 @@ model.end.woplate4.2<-lm(V1~treatment, data=subset(cort5, time=="2"))
 summary(model.end.woplate4.2)
 model.end.woplate4.3<-lm(V1~plate, data=subset(cort5, time=="2"))
 summary(model.end.woplate4.3)
+
 #anova without plate4 for base time period
 model.end.woplate4<-lm(V1~treatment+plate, data=subset(cort5, time=="1"))
 summary(model.end.woplate4)
@@ -450,7 +454,7 @@ scort1.end<-scort1[scort1$time=="2",]
 #merge based on experiment number and sample name
 scort2<-merge(scort1.base, scort1.end, by=c("sample_no", "experiment"))
 summary(scort2)
-#View(scort2)
+View(scort2)
 dim(scort2)
 #subtract final measurement from initial cort measurement
 scort2$cort.diff<-scort2$V1.y-scort2$V1.x
@@ -484,8 +488,10 @@ scort3.end<-scort3[scort3$time=="2",]
 scort4<-merge(scort3.base, scort3.end, by=c("sample_no", "experiment"))
 #cort4<-merge(cort3, sample_list, by=c("sample_no", "experiment"))
 scort4$cort.diff<-scort4$V1.y-scort4$V1.x
-#View(scort4)
 
+
+# this is (not) the anova for the manuscript
+View(scort4)
 #anova for treatment effect on cort difference
 m3<-lm(cort.diff~treatment.x, data=scort4)
 summary(m3)
@@ -525,6 +531,7 @@ summary(m11)
 m12<-lm(cort.diff~predator.x+experiment, data=scort4)
 summary(m12)
 plot(m12)
+
 
 boxplot(cort.diff~Pesticide.x+predator.x, data=scort4, main="Cort diff")
 
@@ -601,3 +608,84 @@ dev.off()
 
 #boxplot(cort.diff~treatment.x, data=scort4, xlab="treatment.x", 
 #        names=c("control","pesticide","predator","pesticide+predator"), ylab="Cort pg/mL", main="")
+
+
+# final aov wo and with interaction, plus a blocking term for plate
+one_way_predator <- aov(cort.diff ~ predator.x, data = scort4)
+summary(one_way_predator)
+
+one_way_pesticide <- aov(cort.diff ~ Pesticide.y, data = scort4)
+summary(one_way_pesticide)
+
+one_way_plate <- aov(cort.diff ~ plate.y, data = scort4)
+summary(one_way_plate)
+
+two_way_cort <- aov(cort.diff ~ predator.x + Pesticide.y, data = scort4)
+summary(two_way_cort)
+
+two_way_cort_block <- aov(cort.diff ~ predator.x + Pesticide.y + plate.y, data = scort4)
+summary(two_way_cort_block)
+
+two_way_cort_interaction <- aov(cort.diff ~ predator.x * Pesticide.y, data = scort4)
+summary(two_way_cort_interaction)
+
+two_way_cort_interaction_block <- aov(cort.diff ~ predator.x * Pesticide.y + plate.y, data = scort4)
+summary(two_way_cort_interaction_block)
+
+# AIC R code to determine best fit model
+library(AICcmodavg)
+
+model.set <- list(one_way_predator, one_way_pesticide, one_way_plate,
+                  two_way_cort, two_way_cort_block, 
+                  two_way_cort_interaction, two_way_cort_interaction_block)
+model.names <- c("one_way_predator", "one_way_pesticide", "one_way_plate",
+                 "two_way_cort", "two_way_cort_block",
+                "two_way_cort_interaction", "two_way_cort_interaction_block")
+
+aictab(model.set, modnames = model.names)
+#Model selection based on AICc:
+#  
+#                              K   AICc Delta_AICc AICcWt Cum.Wt      LL
+#one_way_pesticide              3 965.61       0.00   0.56   0.56 -479.60
+#two_way_cort                   4 967.59       1.98   0.21   0.77 -479.44
+#two_way_cort_block             7 968.77       3.16   0.12   0.88 -476.35
+#two_way_cort_interaction       5 969.51       3.90   0.08   0.96 -479.22
+#two_way_cort_interaction_block 8 971.01       5.40   0.04   1.00 -476.15
+#one_way_predator               3 985.92      20.31   0.00   1.00 -489.75
+#one_way_plate                  5 987.61      22.00   0.00   1.00 -488.27
+
+summary(one_way_pesticide)
+#Df   Sum Sq Mean Sq F value   Pr(>F)    
+#Pesticide.y  1  7699147 7699147   24.31 6.82e-06 ***
+#  Residuals   60 19004102  316735  
+
+TukeyHSD(one_way_pesticide)
+#Tukey multiple comparisons of means
+#95% family-wise confidence level
+
+#Fit: aov(formula = cort.diff ~ Pesticide.y, data = scort4)
+
+#$Pesticide.y
+#diff       lwr       upr   p adj
+#control-carbaryl -706.2544 -992.7927 -419.7162 6.8e-06
+
+summary(two_way_cort)
+#Df   Sum Sq Mean Sq F value   Pr(>F)    
+#predator.x   1   331955  331955   1.036    0.313    
+#Pesticide.y  1  7462381 7462381  23.284 1.02e-05 ***
+#  Residuals   59 18908914  320490 
+
+TukeyHSD(two_way_cort)
+#Tukey multiple comparisons of means
+#95% family-wise confidence level
+
+#Fit: aov(formula = cort.diff ~ predator.x + Pesticide.y, data = scort4)
+
+#$predator.x
+#diff      lwr      upr     p adj
+#yes-no 146.3435 -141.388 434.0751 0.3129622
+
+#$Pesticide.y
+#diff       lwr       upr    p adj
+#control-carbaryl -692.033 -980.3652 -403.7007 1.11e-05
+
